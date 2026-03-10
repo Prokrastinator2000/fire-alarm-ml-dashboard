@@ -8,9 +8,7 @@ st.set_page_config(page_title="Предсказание", page_icon="🔮", layo
 
 st.title("🔮 Предсказание пожарной тревоги (Fire Alarm)")
 
-# ================================================================
-# Загрузка моделей
-# ================================================================
+
 MODEL_DIR = "saved_models"
 
 MODEL_FILES = {
@@ -39,9 +37,7 @@ if not models:
     st.error("❌ Ни одна модель не загружена. Проверьте папку saved_models/")
     st.stop()
 
-# ================================================================
-# Загрузка данных для определения диапазонов признаков
-# ================================================================
+
 @st.cache_data
 def load_data():
     return pd.read_csv("data/df_classification.csv")
@@ -51,27 +47,20 @@ try:
 except:
     df_full = None
 
-# ================================================================
-# Признаки модели (без целевой переменной)
-# Подставьте ТОЧНЫЙ список признаков, на которых обучались модели
-# ================================================================
-# Загрузим одну модель и посмотрим на количество признаков
+
 sample_model = list(models.values())[0]
 
-# Попытаемся определить имена признаков
+
 if df_full is not None:
     all_feature_cols = [c for c in df_full.columns if c != "Fire Alarm"]
 else:
-    # Запасной вариант — типичные признаки датасета Smoke Detection
     all_feature_cols = [
         "UTC", "Temperature[C]", "Humidity[%]", "TVOC[ppb]", "eCO2[ppm]",
         "Raw H2", "Raw Ethanol", "Pressure[hPa]", "PM1.0", "PM2.5",
         "NC0.5", "NC1.0", "NC2.5", "CNT"
     ]
 
-# ================================================================
-# Выбор способа ввода
-# ================================================================
+
 st.markdown("---")
 st.header("📥 Ввод данных")
 
@@ -81,9 +70,7 @@ input_method = st.radio(
     horizontal=True
 )
 
-# ================================================================
-# Ручной ввод
-# ================================================================
+
 def clean_feature_names(df):
     """Приводит имена столбцов к формату, который использовался при обучении XGBoost"""
     df = df.copy()
@@ -101,7 +88,7 @@ def clean_feature_names(df):
 if input_method == "✏️ Ручной ввод":
     st.subheader("Введите показания датчиков:")
 
-    # Определяем min/max/default для каждого признака
+    
     feature_config = {}
     for col in all_feature_cols:
         if df_full is not None and col in df_full.columns:
@@ -117,7 +104,7 @@ if input_method == "✏️ Ручной ввод":
                 "min": 0.0, "max": 100.0, "mean": 50.0, "median": 50.0
             }
 
-    # Создаём виджеты ввода в 3 колонки
+    
     input_values = {}
     cols = st.columns(3)
 
@@ -135,7 +122,7 @@ if input_method == "✏️ Ручной ввод":
                      f"среднее: {cfg['mean']:.2f}"
             )
 
-    # Кнопка предсказания
+    
     st.markdown("---")
     predict_button = st.button("🔮 Предсказать", type="primary", use_container_width=True)
 
@@ -152,7 +139,7 @@ if input_method == "✏️ Ручной ввод":
         for i, (model_name, model) in enumerate(models.items()):
             with results_cols[i % 3]:
                 try:
-                    # Для XGBoost — очищаем имена столбцов
+                    
                     if "XGBoost" in model_name:
                         pred_df = clean_feature_names(input_df)
                     else:
@@ -160,7 +147,7 @@ if input_method == "✏️ Ручной ввод":
 
                     prediction = model.predict(pred_df)[0]
 
-                    # Вероятности
+                    
                     proba = None
                     if hasattr(model, "predict_proba"):
                         try:
@@ -168,7 +155,7 @@ if input_method == "✏️ Ручной ввод":
                         except:
                             pass
 
-                    # Отображение результата
+                    
                     if prediction == 1:
                         st.error(f"🔴 **{model_name}**")
                         st.markdown("### 🚨 ТРЕВОГА!")
@@ -188,9 +175,7 @@ if input_method == "✏️ Ручной ввод":
 
 
 
-# ================================================================
-# Загрузка CSV
-# ================================================================
+
 elif input_method == "📁 Загрузка CSV-файла":
     st.subheader("Загрузите CSV-файл с данными датчиков")
 
@@ -210,26 +195,26 @@ elif input_method == "📁 Загрузка CSV-файла":
             st.dataframe(input_df.head(20), use_container_width=True)
             st.info(f"Загружено строк: {len(input_df)}")
 
-            # Убираем целевую переменную если есть
+            
             if "Fire Alarm" in input_df.columns:
                 y_true = input_df["Fire Alarm"]
                 input_df = input_df.drop(columns=["Fire Alarm"])
             else:
                 y_true = None
 
-            # Оставляем только нужные столбцы
+            
             input_features = input_df[[c for c in all_feature_cols if c in input_df.columns]]
 
             st.markdown("---")
 
-            # ✅ Выбор модели ПЕРЕД кнопкой — так Streamlit не сбрасывает выбор
+            
             selected_model_name = st.selectbox(
                 "Выберите модель:",
                 list(models.keys()),
                 key="csv_model_select"
             )
 
-            # Кнопка предсказания
+            
             predict_csv_button = st.button(
                 "🔮 Предсказать для всех строк",
                 type="primary",
@@ -237,21 +222,19 @@ elif input_method == "📁 Загрузка CSV-файла":
                 key="csv_predict_btn"
             )
 
-            # Сохраняем результат в session_state чтобы не терялся
+            
             if predict_csv_button:
                 st.session_state["csv_predictions_ready"] = True
                 st.session_state["csv_selected_model"] = selected_model_name
 
-            # Если модель изменилась в selectbox — обновляем предсказание
+            
             if "csv_predictions_ready" in st.session_state and st.session_state["csv_predictions_ready"]:
-                # Берём актуально выбранную модель
                 current_model_name = selected_model_name
                 model = models[current_model_name]
 
                 st.subheader(f"📊 Результаты предсказания — {current_model_name}")
 
                 try:
-                    # Для XGBoost — очищаем имена столбцов
                     if "XGBoost" in current_model_name:
                         pred_features = clean_feature_names(input_features)
                     else:
@@ -284,7 +267,7 @@ elif input_method == "📁 Загрузка CSV-файла":
 
                     st.dataframe(result_df, use_container_width=True)
 
-                    # Статистика
+                    
                     n_alarm = int((predictions == 1).sum())
                     n_safe = int((predictions == 0).sum())
 
@@ -292,7 +275,7 @@ elif input_method == "📁 Загрузка CSV-файла":
                     col1.metric("🚨 Тревога (1)", n_alarm)
                     col2.metric("✅ Нет тревоги (0)", n_safe)
 
-                    # Скачивание результатов
+                   
                     csv_result = result_df.to_csv(index=False).encode("utf-8")
                     st.download_button(
                         label="📥 Скачать результаты (CSV)",
@@ -307,9 +290,7 @@ elif input_method == "📁 Загрузка CSV-файла":
         except Exception as e:
             st.error(f"❌ Ошибка чтения файла: {e}")
 
-# ================================================================
-# Информация о моделях
-# ================================================================
+
 st.markdown("---")
 st.header("ℹ️ Информация о загруженных моделях")
 

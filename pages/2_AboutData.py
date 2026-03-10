@@ -5,7 +5,7 @@ st.set_page_config(page_title="О датасете", page_icon="📊", layout="w
 
 st.title("📊 Информация о наборе данных")
 
-# ---- Загрузка данных ----
+
 @st.cache_data
 def load_data():
     return pd.read_csv("data/df_classification.csv")
@@ -16,7 +16,7 @@ except FileNotFoundError:
     st.error("❌ Файл data/df_classification.csv не найден!")
     st.stop()
 
-# ---- Описание предметной области ----
+
 st.header("1. Предметная область")
 st.markdown("""
 Датасет **Smoke Detection Dataset** содержит показания различных датчиков,
@@ -30,7 +30,7 @@ st.markdown("""
 которые по показаниям датчиков определяют, нужно ли поднимать тревогу.
 """)
 
-# ---- Описание признаков ----
+
 st.header("2. Описание признаков")
 
 feature_descriptions = {
@@ -57,7 +57,7 @@ desc_df = pd.DataFrame(
 )
 st.table(desc_df)
 
-# ---- Основные характеристики ----
+
 st.header("3. Основные характеристики датасета")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -69,15 +69,15 @@ if "Fire Alarm" in df.columns:
     balance = df["Fire Alarm"].value_counts()
     col4.metric("⚖️ Баланс (1/0)", f"{balance.get(1, 0)} / {balance.get(0, 0)}")
 
-# ---- Первые строки ----
+
 st.header("4. Первые строки датасета")
 st.dataframe(df.head(20), use_container_width=True)
 
-# ---- Статистика ----
+
 st.header("5. Статистическое описание")
 st.dataframe(df.describe().T, use_container_width=True)
 
-# ---- Типы данных ----
+
 st.header("6. Типы данных")
 dtypes_df = pd.DataFrame({
     "Признак": df.columns,
@@ -87,7 +87,7 @@ dtypes_df = pd.DataFrame({
 })
 st.dataframe(dtypes_df, use_container_width=True)
 
-# ---- Предобработка ----
+
 st.header("7. Особенности предобработки данных")
 st.markdown("""
 1. **Проверка пропусков** — пропущенные значения отсутствуют.

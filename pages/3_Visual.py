@@ -18,12 +18,12 @@ except FileNotFoundError:
     st.error("❌ Файл data/df_classification.csv не найден!")
     st.stop()
 
-# ---- 1. Распределение целевой переменной ----
+
 st.header("1. Распределение целевой переменной (Fire Alarm)")
 
 fig1, axes1 = plt.subplots(1, 2, figsize=(12, 5))
 
-# Pie chart
+
 if "Fire Alarm" in df.columns:
     counts = df["Fire Alarm"].value_counts()
     labels = ["Не сработал (0)", "Сработал (1)"]
@@ -32,7 +32,7 @@ if "Fire Alarm" in df.columns:
                  startangle=90, textprops={"fontsize": 12})
     axes1[0].set_title("Соотношение классов", fontsize=14)
 
-    # Bar chart
+    
     sns.countplot(x="Fire Alarm", data=df, ax=axes1[1], palette=colors)
     axes1[1].set_title("Количество по классам", fontsize=14)
     axes1[1].set_xlabel("Fire Alarm")
@@ -46,7 +46,7 @@ if "Fire Alarm" in df.columns:
 plt.tight_layout()
 st.pyplot(fig1)
 
-# ---- 2. Корреляционная матрица (Heatmap) ----
+
 st.header("2. Корреляционная матрица")
 
 numeric_cols = df.select_dtypes(include=[np.number]).columns
@@ -59,7 +59,7 @@ ax2.set_title("Корреляционная матрица признаков", 
 plt.tight_layout()
 st.pyplot(fig2)
 
-# ---- 3. Boxplot для выбранного признака ----
+
 st.header("3. Boxplot — распределение признаков по классам")
 
 feature_cols = [c for c in numeric_cols if c != "Fire Alarm"]
@@ -76,7 +76,7 @@ if "Fire Alarm" in df.columns:
 plt.tight_layout()
 st.pyplot(fig3)
 
-# ---- 4. Гистограммы нескольких признаков ----
+
 st.header("4. Гистограммы распределения признаков")
 
 selected_features = st.multiselect(
@@ -107,7 +107,7 @@ if selected_features:
         axes4[i].set_title(feat, fontsize=12)
         axes4[i].legend()
 
-    # Скрыть лишние оси
+    
     for j in range(len(selected_features), len(axes4)):
         axes4[j].set_visible(False)
 
@@ -116,7 +116,7 @@ if selected_features:
 else:
     st.info("Выберите хотя бы один признак.")
 
-# ---- 5. Scatter plot ----
+
 st.header("5. Scatter plot — зависимость двух признаков")
 
 col_a, col_b = st.columns(2)

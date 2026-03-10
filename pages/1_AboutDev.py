@@ -7,7 +7,6 @@ st.title("👤 О разработчике")
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    # Замените на путь к вашему фото
     try:
         st.image("photo.jpg", caption="Фото разработчика", width=250)
     except:
