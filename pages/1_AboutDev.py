@@ -9,7 +9,7 @@ col1, col2 = st.columns([1, 2])
 with col1:
     # Замените на путь к вашему фото
     try:
-        st.image("img\photo.jpg", caption="Фото разработчика", width=250)
+        st.image("photo.jpg", caption="Фото разработчика", width=250)
     except:
         st.info("📷 Фото не найдено. Поместите файл photo.jpg в корень проекта.")
 
@@ -43,6 +43,5 @@ with col2:
     ---
 
     ### Контакты
-    - 📧 Email: ivanov@example.com
-    - 🔗 GitHub: [github.com/username](https://github.com/username)
+    - 🔗 GitHub: [github.com/Prokrastinator2000](https://github.com/Prokrastinator2000)
     """)
